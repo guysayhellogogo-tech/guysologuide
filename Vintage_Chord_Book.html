@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Guy Solo Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  :root{
+    --gold:#d97757;
+    --gold-bright:#f2a06f;
+    --black:#1c130c;
+    --black2:#26190f;
+    --black3:#332213;
+    --surface:#2b1c11;
+    --cream:#f2e4d0;
+    --line:rgba(217,119,87,.18);
+    --radius:14px;
+    --radius-sm:9px;
+    --chart-font-size:16px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1100px 600px at 12% -10%, rgba(217,119,87,.16), transparent 55%),
+      radial-gradient(900px 500px at 100% 0%, rgba(242,160,111,.10), transparent 50%),
+      var(--black);
+    color:var(--cream);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    display:flex;
+    height:100vh;
+    overflow:hidden;
+  }
+  ::-webkit-scrollbar{width:9px;height:9px;}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+
+  /* ===== Sidebar ===== */
+  #sidebar{
+    width:280px;
+    background:var(--black2);
+    border-right:1px solid var(--line);
+    padding:18px 16px;
+    display:flex;
+    flex-direction:column;
+    overflow-y:auto;
+  }
+  #sidebar h1{
+    font-size:19px;font-weight:800;
+    color:var(--gold-bright);
+    letter-spacing:-.02em;
+    margin:0 0 4px;
+  }
+  #sidebar .subtitle{
+    font-size:11.5px;
+    color:#a7906f;
+    margin-bottom:16px;
+  }
+  #search{
+    width:100%;
+    padding:10px 12px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    color:var(--cream);
+    border-radius:var(--radius-sm);
+    font-family:inherit;
+    font-size:13px;
+    margin-bottom:12px;
+    outline:none;
+    transition:border-color .15s;
+  }
+  #search:focus{border-color:var(--gold);}
+  .btnrow{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+  button{
+    cursor:pointer;
+    font-family:inherit;
+    border:1px solid var(--line);
+    background:var(--surface);
+    color:var(--gold-bright);
+    padding:7px 12px;
+    border-radius:var(--radius-sm);
+    font-size:12.5px;
+    font-weight:500;
+    transition:background .15s,color .15s,border-color .15s,transform .1s;
+  }
+  button:hover{background:var(--gold);color:#1c130c;border-color:var(--gold);}
+  button:active{transform:scale(.97);}
+  button.small{padding:4px 8px;font-size:11px;border-radius:7px;}
+  button.danger{border-color:rgba(224,138,117,.35);color:#e0a48f;}
+  button.danger:hover{background:#c1573f;color:#fff;border-color:#c1573f;}
+  #songList{list-style:none;padding:0;margin:0;flex:1;overflow-y:auto;}
+  #songList li{
+    padding:10px 12px;
+    margin-bottom:4px;
+    cursor:pointer;
+    border-radius:var(--radius-sm);
+    font-size:13.5px;
+    font-weight:500;
+    transition:background .15s;
+  }
+  #songList li:hover{background:var(--surface);}
+  #songList li.active{background:var(--gold);color:#1c130c;}
+  #songList li .meta{display:block;font-size:11px;color:#a7906f;font-weight:400;margin-top:2px;}
+  #songList li.active .meta{color:#3d2311;}
+  #fileImport{display:none;}
+
+  /* ===== Main ===== */
+  #main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+  #header{
+    padding:16px 26px;
+    border-bottom:1px solid var(--line);
+    background:var(--black2);
+  }
+  #header .titleRow{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  #titleField{
+    font-size:24px;color:var(--gold-bright);background:transparent;border:none;
+    font-family:inherit;font-weight:700;letter-spacing:-.01em;
+    outline:none;min-width:220px;border-radius:6px;
+  }
+  #titleField:focus{background:var(--surface);padding:2px 6px;margin:-2px -6px;}
+  .metaFields{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;font-size:11px;color:#a7906f;}
+  .metaFields label{display:flex;flex-direction:column;gap:3px;font-weight:500;}
+  .metaFields input,.metaFields select{
+    background:var(--surface);border:1px solid var(--line);color:var(--cream);
+    padding:6px 8px;border-radius:8px;font-family:inherit;font-size:12px;width:88px;outline:none;
+  }
+  .metaFields input:focus,.metaFields select:focus{border-color:var(--gold);}
+  #sourceLine{font-size:11px;color:#a7906f;margin-top:8px;}
+  #sourceLine a{color:var(--gold-bright);text-decoration:none;}
+  #sourceLine a:hover{text-decoration:underline;}
+  #toolbar{
+    display:flex;gap:20px;flex-wrap:wrap;align-items:center;
+    padding:12px 26px;background:rgba(38,25,15,.7);border-bottom:1px solid var(--line);
+  }
+  .toolGroup{display:flex;align-items:center;gap:6px;}
+  .toolGroup .label{font-size:10.5px;color:#a7906f;text-transform:uppercase;letter-spacing:.6px;margin-right:2px;font-weight:600;}
+  input[type=range]{accent-color:var(--gold);}
+
+  #tensionPalette{
+    display:none;
+    flex-wrap:wrap;gap:6px;padding:12px 26px;background:var(--black2);
+    border-bottom:1px solid var(--line);
+  }
+  #tensionPalette.show{display:flex;}
+  #tensionPalette button{font-size:11.5px;padding:5px 10px;}
+
+  #chartScroll{flex:1;overflow-y:auto;padding:28px;}
+  #chartArea{
+    max-width:980px;margin:0 auto;
+    padding:6px 2px;
+  }
+  .section{margin-bottom:26px;}
+  .sectionHead{
+    display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;
+  }
+  .sectionLabel{
+    color:#1c130c;background:var(--gold);
+    font-weight:700;font-size:12px;padding:4px 12px;border-radius:999px;
+    letter-spacing:.02em;
+  }
+  .sectionActions button{padding:3px 8px;font-size:10.5px;}
+  .barsGrid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+  }
+  .bar{
+    position:relative;
+    min-height:64px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:0 2px 10px rgba(0,0,0,.25);
+    padding:10px 12px;
+    display:flex;flex-wrap:wrap;align-items:center;gap:4px;
+    font-size:var(--chart-font-size);
+    transition:border-color .15s,transform .1s;
+  }
+  .bar:hover{border-color:rgba(217,119,87,.4);}
+  .bar .chordSlot{
+    outline:none;color:var(--cream);min-width:20px;
+    padding:2px 4px;border-radius:6px;font-weight:700;
+  }
+  .bar .chordSlot:focus{background:rgba(217,119,87,.2);}
+  .bar .chordSlot:empty:before{content:'—';color:#6b5a45;font-weight:400;}
+  .bar .chordSlot.numeral{cursor:default;color:var(--gold-bright);}
+  .barTools{
+    position:absolute;top:6px;right:6px;display:none;gap:3px;
+  }
+  .bar:hover .barTools{display:flex;}
+  .barTools button{padding:2px 6px;font-size:9px;line-height:1.4;border-radius:6px;}
+
+  #addSectionBtn{margin-top:8px;}
+
+  /* ===== Improv Guide (inline, under the chord) ===== */
+  .bar.guided{
+    flex-direction:column;align-items:stretch;gap:6px;
+    border-top:5px solid transparent;padding-bottom:12px;
+  }
+  .chordRow{display:flex;flex-wrap:wrap;align-items:center;gap:4px;}
+  .guideInfo{width:100%;line-height:1.35;}
+  .guidePill{
+    display:inline-block;font-size:12.5px;font-weight:800;letter-spacing:.01em;
+    padding:4px 10px;border-radius:999px;color:#0c0a08;
+    box-shadow:0 2px 6px rgba(0,0,0,.35);
+    max-width:100%;white-space:normal;
+  }
+  .guideNotes{
+    display:block;margin-top:5px;font-size:11px;color:var(--cream);
+    opacity:.9;word-break:break-word;line-height:1.4;
+  }
+  #guideStyleBar{display:none;flex-wrap:wrap;gap:8px;align-items:center;
+    padding:10px 26px;background:var(--black2);border-bottom:1px solid var(--line);}
+  #guideStyleBar.show{display:flex;}
+  #guideStyleBar select{
+    background:var(--surface);border:1px solid var(--gold);color:var(--gold-bright);
+    padding:6px 10px;border-radius:8px;font-family:inherit;font-size:12px;outline:none;
+  }
+  #guideSummary{
+    display:none;align-items:center;gap:10px;padding:10px 26px;
+    background:rgba(217,119,87,.08);border-bottom:1px solid var(--line);
+    font-size:12.5px;color:var(--cream);flex-wrap:wrap;
+  }
+  #guideSummary.show{display:flex;}
+  #guideSummary .dot{width:10px;height:10px;border-radius:50%;flex:none;}
+  #guideSummary b{color:var(--gold-bright);}
+
+  footer{
+    padding:8px 26px;font-size:10px;color:#78644a;text-align:center;
+    border-top:1px solid var(--line);
+  }
+
+  /* ===== Mobile ===== */
+  #mobileTopBar{
+    display:none;align-items:center;gap:10px;padding:12px 16px;
+    background:var(--black2);border-bottom:1px solid var(--line);flex:none;
+  }
+  #mobileTopBar button{font-size:18px;padding:5px 11px;border-radius:10px;}
+  #mobileTitle{color:var(--gold-bright);font-weight:800;font-size:15px;}
+  #sidebarBackdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:40;}
+  #sidebarBackdrop.show{display:block;}
+
+  @media (max-width:768px){
+    body{flex-direction:column;}
+    #mobileTopBar{display:flex;}
+    #sidebar{
+      position:fixed;top:0;bottom:0;left:-88%;width:85%;max-width:320px;z-index:50;
+      transition:left .25s ease;box-shadow:6px 0 30px rgba(0,0,0,.6);
+    }
+    #sidebar.open{left:0;}
+    #main{width:100%;}
+    #header{padding:12px 16px;}
+    #titleField{font-size:19px;min-width:0;width:100%;}
+    .metaFields{gap:8px;}
+    .metaFields input,.metaFields select{width:64px;font-size:11px;}
+    #toolbar{padding:10px 14px;gap:12px;}
+    .toolGroup{flex-wrap:wrap;}
+    #guideStyleBar{padding:10px 14px;}
+    #chartScroll{padding:12px;}
+    #chartArea{padding:0;}
+    .barsGrid{grid-template-columns:repeat(2,1fr);gap:8px;}
+    button{padding:9px 13px;}
+  }
+  @media (max-width:460px){
+    .barsGrid{grid-template-columns:repeat(1,1fr);}
+    #titleField{font-size:17px;}
+  }
+
+  /* Print styles */
+  @media print{
+    body{background:#fff;color:#000;height:auto;}
+    #sidebar,#toolbar,#tensionPalette,footer,.barTools,#header,#guideStyleBar,#guideSummary,#mobileTopBar,#sidebarBackdrop{display:none !important;}
+    .bar{border-top:none !important;box-shadow:none;}
+    #chartScroll{overflow:visible;padding:0;}
+    #chartArea{background:#fff;border:none;box-shadow:none;color:#000;}
+    .sectionLabel{background:#000;color:#fff;}
+    .bar{border-color:#000;color:#000;}
+    .bar .chordSlot{color:#000;}
+    .guideNotes{color:#333;}
+  }
+</style>
+</head>
+<body>
+
+<div id="mobileTopBar">
+  <button onclick="toggleSidebar()">☰</button>
+  <span id="mobileTitle">♪ Guy Solo Guide</span>
+</div>
+<div id="sidebarBackdrop" onclick="toggleSidebar()"></div>
+
+<div id="sidebar">
+  <h1>♪ Guy Solo Guide</h1>
+  <div class="subtitle">chord charts + solo roadmaps, your way</div>
+  <input id="search" placeholder="Search songs…" oninput="renderSongList()">
+  <div class="btnrow">
+    <button onclick="newSong()">+ New</button>
+    <button onclick="duplicateSong()">⎘ Duplicate</button>
+    <button class="danger" onclick="deleteSong()">✕ Delete</button>
+  </div>
+  <div class="btnrow">
+    <button onclick="exportSong()">↓ Export JSON</button>
+    <button onclick="document.getElementById('fileImport').click()">↑ Import JSON</button>
+    <input type="file" id="fileImport" accept=".json" onchange="importSong(event)">
+  </div>
+  <ul id="songList"></ul>
+</div>
+
+<div id="main">
+  <div id="header">
+    <div class="titleRow">
+      <input id="titleField" oninput="updateMeta('title',this.value)">
+    </div>
+    <div class="metaFields">
+      <label>Style
+        <input id="styleField" oninput="updateMeta('style',this.value)">
+      </label>
+      <label>Key
+        <input id="keyField" oninput="updateMeta('key',this.value)" title="e.g. Cm, Bb, F#">
+      </label>
+      <label>Time
+        <input id="timeField" oninput="updateMeta('time',this.value)">
+      </label>
+      <label>Tempo
+        <input id="tempoField" type="number" oninput="updateMeta('tempo',this.value)">
+      </label>
+    </div>
+    <div id="sourceLine"></div>
+  </div>
+
+  <div id="toolbar">
+    <div class="toolGroup">
+      <span class="label">Transpose</span>
+      <button onclick="transposeSong(-1)">−1</button>
+      <button onclick="transposeSong(1)">+1</button>
+      <select id="keyPicker" onchange="transposeToKey(this.value)">
+        <option value="">Jump to key…</option>
+      </select>
+    </div>
+    <div class="toolGroup">
+      <span class="label">View</span>
+      <button id="nashvilleBtn" onclick="toggleNashville()">Nashville #</button>
+      <button onclick="togglePalette()">Tension Chords</button>
+      <button id="guideBtn" onclick="toggleGuide()">🎯 Improv Guide</button>
+    </div>
+    <div class="toolGroup">
+      <span class="label">Zoom</span>
+      <input type="range" min="12" max="26" value="16" oninput="setZoom(this.value)">
+    </div>
+    <div class="toolGroup">
+      <span class="label">Performance</span>
+      <button id="scrollBtn" onclick="toggleAutoscroll()">▶ Auto-Scroll</button>
+      <input type="range" min="1" max="10" value="4" id="scrollSpeed" title="scroll speed">
+    </div>
+    <div class="toolGroup">
+      <button onclick="window.print()">🖨 Print / PDF</button>
+    </div>
+  </div>
+
+  <div id="tensionPalette"></div>
+
+  <div id="guideStyleBar">
+    <span class="label">Guide Style</span>
+    <select id="guideStyleSelect" onchange="setGuideStyle(this.value)">
+      <option value="auto">Auto (Recommended)</option>
+      <option value="easy">Easy Solo (Key Center)</option>
+      <option value="pentatonic">Pentatonic Style</option>
+      <option value="triad">Triad</option>
+      <option value="scale">A Scale (Mode)</option>
+      <option value="melodicminor">Melodic Minor Style</option>
+      <option value="bebop">Hadrien Féraud Style (Melodic Minor)</option>
+      <option value="evans">Bill Evans Style (Modal/Lydian)</option>
+      <option value="coltrane">John Coltrane Style (Major-3rd Sub)</option>
+      <option value="outside">Outside Style (Tritone Sub / Chromatic Slip)</option>
+      <option value="parker">Charlie Parker Style (Bebop Scales)</option>
+      <option value="miles">Miles Davis Style (Modal)</option>
+      <option value="rollins">Sonny Rollins Style (Blues/Thematic)</option>
+      <option value="wes">Wes Montgomery Style (Soulful Bebop)</option>
+      <option value="metheny">Pat Metheny Style (Lydian/Lyrical)</option>
+      <option value="hancock">Herbie Hancock Style (Modal + Whole Tone)</option>
+      <option value="brecker">Michael Brecker Style (Diminished/Altered)</option>
+      <option value="martino">Pat Martino Style (Min6/Dim Conversion)</option>
+      <option value="corea">Chick Corea Style (Phrygian Dominant)</option>
+      <option value="henderson">Joe Henderson Style (Inside/Outside)</option>
+      <option value="barryharris">Barry Harris Method (6th Diminished)</option>
+      <option value="triadpairs">Triad Pairs / Hexatonics (Modern)</option>
+      <option value="guidetone">Guide Tone / Voice Leading (Jim Hall)</option>
+      <option value="symmetrical">Symmetrical / Diminished Concepts</option>
+      <option value="tritonesub">Tritone Sub / Harmonic Generalization</option>
+      <option value="fusiongospel">Modern Fusion & Gospel Chops</option>
+      <option value="coltranematrix">Coltrane Matrix (Multi-Tonic)</option>
+      <option value="sidestep">Pentatonic Sidestepping (Outside)</option>
+      <option value="quartal">Quartal Harmony (McCoy Tyner)</option>
+      <option value="targetalt">Targeting Alterations (b9/#9/b5/#5)</option>
+    </select>
+    <span style="font-size:11px;color:#8a7a5c;">Each bar shows its scale right under the chord — tap Guide Style to drill one technique across the whole chart.</span>
+  </div>
+  <div id="guideSummary"></div>
+
+  <div id="chartScroll">
+    <div id="chartArea"></div>
+    <div style="text-align:center;margin-top:14px;">
+      <button id="addSectionBtn" onclick="addSection()">+ Add Section</button>
+    </div>
+  </div>
+
+  <footer>Click any chord to edit it. Use Duplicate to save a version for a different band or key.</footer>
+</div>
+
+<script>
+/* ================= Chord transposition engine ================= */
+const SHARP=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const FLAT =['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const BASE_IDX={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+const FLAT_KEYS=new Set(['F','Bb','Eb','Ab','Db','Gb','Cb','Dm','Gm','Cm','Fm','Bbm','Ebm','Abm','Dbm','Gbm']);
+const ALL_KEYS=['C','Db','D','Eb','E','F','F#','G','Ab','A','Bb','B',
+                 'Cm','C#m','Dm','Ebm','Em','Fm','F#m','Gm','Abm','Am','Bbm','Bm'];
+
+function noteIndex(letter,accidental){
+  let i=BASE_IDX[letter];
+  if(accidental==='#')i+=1; else if(accidental==='##')i+=2;
+  else if(accidental==='b')i-=1; else if(accidental==='bb')i-=2;
+  return ((i%12)+12)%12;
+}
+function keyRootIndex(key){
+  const m=key.match(/^([A-G])(#|b)?/);
+  if(!m)return 0;
+  return noteIndex(m[1],m[2]||'');
+}
+function spellNote(idx,useFlats){return useFlats?FLAT[idx]:SHARP[idx];}
+
+function transposeChordString(chord,shift,useFlats){
+  if(!chord)return chord;
+  return chord.split('/').map(part=>{
+    const m=part.match(/^([A-G])(#{1,2}|b{1,2})?(.*)$/);
+    if(!m)return part;
+    const idx=(noteIndex(m[1],m[2]||'')+shift+120)%12;
+    return spellNote(idx,useFlats)+m[3];
+  }).join('/');
+}
+
+function nashvilleNumeral(chord,keyRootIdx){
+  if(!chord)return chord;
+  const parts=chord.split('/');
+  const NUMS=['1','b2','2','b3','3','4','#4','5','b6','6','b7','7'];
+  return parts.map(part=>{
+    const m=part.match(/^([A-G])(#{1,2}|b{1,2})?(.*)$/);
+    if(!m)return part;
+    const idx=(noteIndex(m[1],m[2]||'')-keyRootIdx+120)%12;
+    return NUMS[idx]+m[3];
+  }).join('/');
+}
+
+/* ================= Improv Guide engine ================= */
+const SCALE_LIB={
+  ionian:      {name:'Major (Ionian)',      iv:[0,2,4,5,7,9,11]},
+  lydian:      {name:'Lydian',              iv:[0,2,4,6,7,9,11]},
+  lydianAug:   {name:'Lydian Augmented',    iv:[0,2,4,6,8,9,11]},
+  lydianDom:   {name:'Lydian Dominant',     iv:[0,2,4,6,7,9,10]},
+  dorian:      {name:'Dorian',              iv:[0,2,3,5,7,9,10]},
+  mixolydian:  {name:'Mixolydian',          iv:[0,2,4,5,7,9,10]},
+  aeolian:     {name:'Aeolian (Nat. Minor)',iv:[0,2,3,5,7,8,10]},
+  locrianN2:   {name:'Locrian ♮2',     iv:[0,2,3,5,6,8,10]},
+  melodicMinor:{name:'Melodic Minor',       iv:[0,2,3,5,7,9,11]},
+  altered:     {name:'Altered Scale',       iv:[0,1,3,4,6,8,10]},
+  dorianB2:    {name:'Dorian ♭2',      iv:[0,1,3,5,7,9,10]},
+  mixoB6:      {name:'Mixolydian ♭6',  iv:[0,2,4,5,7,8,10]},
+  wholeTone:   {name:'Whole Tone',          iv:[0,2,4,6,8,10]},
+  wholeHalf:   {name:'Whole-Half Diminished',iv:[0,2,3,5,6,8,9,11]},
+  halfWhole:   {name:'Half-Whole (Dominant) Diminished',iv:[0,1,3,4,6,7,9,10]},
+  harmonicMinor:{name:'Harmonic Minor',     iv:[0,2,3,5,7,8,11]},
+  phrygianDom: {name:'Phrygian Dominant',   iv:[0,1,4,5,7,8,10]},
+  blues:       {name:'Blues Scale',         iv:[0,3,5,6,7,10]},
+  bebopMajor:  {name:'Bebop Major',         iv:[0,2,4,5,7,8,9,11]},
+  bebopDom:    {name:'Bebop Dominant',      iv:[0,2,4,5,7,9,10,11]},
+  bebopMinor:  {name:'Bebop Dorian',        iv:[0,2,3,4,5,7,9,10]},
+  major6Dim:   {name:'Major 6th Diminished',iv:[0,2,4,5,7,8,9,11]}, // Barry Harris (== Bebop Major)
+  minor6Dim:   {name:'Minor 6th Diminished',iv:[0,2,3,5,7,8,9,11]}, // Barry Harris
+  hexMajor7:   {name:'Major7 Triad-Pair Hexatonic (I & II)',      iv:[0,2,4,6,7,9]},
+  hexMinor7:   {name:'Minor7 Triad-Pair Hexatonic (bIII & IV)',   iv:[0,3,5,7,9,10]},
+  hexAltDom:   {name:'Altered-Dominant Triad-Pair Hexatonic',     iv:[0,2,3,5,8,10]},
+  majPent:     {name:'Major Pentatonic',    iv:[0,2,4,7,9]},
+  minPent:     {name:'Minor Pentatonic',    iv:[0,3,5,7,10]}
+};
+function scaleNotes(rootIdx,scaleKey,useFlats){
+  return SCALE_LIB[scaleKey].iv.map(off=>spellNote((rootIdx+off)%12,useFlats));
+}
+
+// ---- High-contrast color system ----
+// Color is keyed by SCALE FAMILY (what you'd actually call the scale — Lydian,
+// Altered, Dorian, Pentatonic...), not by which artist-style produced it, so
+// the same scale always reads as the same color family no matter which Guide
+// Style tab you're on. Root note is then encoded as a big, obvious swing in
+// LIGHTNESS + SATURATION (dark/muted for low roots, bright/vivid for high
+// roots) plus a small hue nudge — so C Dorian and F Dorian are both
+// unmistakably "blue," but nowhere near the same shade of blue.
+const SCALE_FAMILY_HUE={
+  ionian:48, lydian:40, lydianAug:34, lydianDom:28,
+  dorian:206, dorianB2:196, bebopMinor:206, hexMinor7:214,
+  mixolydian:142, mixoB6:130, bebopDom:150,
+  aeolian:252, melodicMinor:262, minor6Dim:256,
+  altered:355, hexAltDom:348,
+  wholeTone:180,
+  wholeHalf:300, halfWhole:312, locrianN2:282,
+  harmonicMinor:14, phrygianDom:8,
+  blues:166,
+  bebopMajor:44, major6Dim:44, hexMajor7:42,
+  majPent:96, minPent:104,
+  easy:96, triad:322 // category fallbacks for when there's no scaleKey
+};
+const CHORD_TONE_HUE=322;
+const GUIDE_LABELS={
+  easy:'KEY',pentatonic:'PENT',triad:'TRIAD',scale:'SCALE',melodicminor:'MEL-MIN',
+  bebop:'FÉRAUD',evans:'EVANS',coltrane:'TRANE',outside:'OUTSIDE',
+  parker:'PARKER',miles:'MILES',rollins:'ROLLINS',wes:'WES',metheny:'METHENY',
+  hancock:'HANCOCK',brecker:'BRECKER',martino:'MARTINO',corea:'COREA',henderson:'HENDERSON',
+  barryharris:'B.HARRIS',triadpairs:'TRIAD-PR',guidetone:'GUIDE-T',symmetrical:'SYMM-DIM',
+  tritonesub:'TRI-SUB',fusiongospel:'GOSPEL',coltranematrix:'MATRIX',sidestep:'SIDESTEP',
+  quartal:'QUARTAL',targetalt:'TGT-ALT'
+};
+// `key` = scaleKey when there is one, else the category (falls back to the
+// generic "chord tones" pink). `rootIdx` drives the big lightness/saturation swing.
+function guideHue(key,rootIdx){
+  const base=(key&&SCALE_FAMILY_HUE[key]!=null)?SCALE_FAMILY_HUE[key]:CHORD_TONE_HUE;
+  const r=((rootIdx??0)%12+12)%12;
+  const wobble=(((r*7)%12)-6)*2; // ±~12°, keeps the family recognizable while still nudging
+  return ((base+wobble)%360+360)%360;
+}
+function guideLight(rootIdx){
+  const r=((rootIdx??0)%12+12)%12;
+  return 36+r*3; // 36% (dark) .. 69% (light) across the 12 roots
+}
+function guideSat(rootIdx){
+  const r=((rootIdx??0)%12+12)%12;
+  return 62+(r%2)*20; // alternates 62% / 82% for extra pop between neighboring roots
+}
+function guideColor(key,rootIdx){
+  return `hsl(${guideHue(key,rootIdx)},${guideSat(rootIdx)}%,${guideLight(rootIdx)}%)`;
+}
+
+// Classifies a chord symbol into one of the engine's chord-scale "families"
+// (major7, minor7, dom7, halfdim, dim7, minmaj7, min6, altdom, sus,
+// majorTriad, minorTriad). Returns {rootIdx, fam, raw, bassIdx} — bassIdx is
+// an additive field (null when there's no slash) so existing callers that
+// only destructure {rootIdx, fam, raw} keep working unchanged.
+//
+// Extension coverage:
+//  - Dominant #11 (C7#11, C9#11, C13#11)        -> 'dom7'   (Lydian-Dominant-
+//    flavored dominant; not fully altered, so it's kept out of 'altdom')
+//  - Dominant b9/b13 combos (G7b9b13, G7alt)     -> 'altdom' (Altered family)
+//  - Major7 #11 (Fmaj7#11, Cmaj9#11)             -> 'major7' (Lydian family)
+//  - Minor 11 / Minor 13 (Dm11, Dm13)            -> 'minor7' (Dorian family)
+//  - Slash chords (C/E, D/C, E/C, Db/G...)       -> see below
+function classifyChordQuality(chord){
+  if(!chord)return null;
+  const [mainRaw,bassRaw]=chord.split('/');
+  const m=mainRaw.match(/^([A-G])(#{1,2}|b{1,2})?(.*)$/);
+  if(!m)return null;
+  const rootIdx=noteIndex(m[1],m[2]||'');
+  const q=m[3]||'';
+  const ql=q.toLowerCase();
+
+  let fam;
+  if(/dim7|°7|o7/.test(q))                                   fam='dim7';
+  else if(/m7b5|ø|m7-5|min7b5/i.test(q))                      fam='halfdim';
+  else if(/mmaj7|m\(maj7\)|minmaj7/i.test(ql))                fam='minmaj7';
+  else if(/^m6(?!\d)|min6/.test(ql))                          fam='min6';
+  // Altered dominant: needs a genuine alteration (b9/#9/#5/b13/alt/+) — a
+  // bare #11 does NOT count as "altered," it stays a plain dominant (Lydian
+  // Dominant family) since #11 alone doesn't clash the way b9/b13 do.
+  else if(/(#9|b9|#5|b13|alt|\+)/.test(q)&&/(7|9|11|13)/.test(q)) fam='altdom';
+  else if(/sus/.test(ql))                                     fam='sus';
+  // m7 / m9 / m11 / m13 / m6-9 etc — anything starting with "m" that isn't
+  // "maj" — all live in the same Dorian-family minor7 bucket.
+  else if(/^m(?!aj)|^min|^-/.test(ql))                         fam='minor7';
+  // maj7 / maj9 / maj13 / maj7#11 / 6 / 6-9 / add9 — Ionian/Lydian family.
+  else if(/maj|Δ/.test(ql)||/^(6|add9|6\/9|69)/.test(ql))      fam='major7';
+  // plain 7 / 9 / 11 / 13 / 7#11 / 7#5 (no alteration flags above) — Mixolydian family.
+  else if(/[7913]/.test(ql))                                  fam='dom7';
+  else fam=/^m/.test(ql)?'minorTriad':'majorTriad';
+
+  // ----- slash-chord bass -----
+  let bassIdx=null;
+  if(bassRaw){
+    const bm=bassRaw.match(/^([A-G])(#{1,2}|b{1,2})?/);
+    if(bm)bassIdx=noteIndex(bm[1],bm[2]||'');
+  }
+
+  // Upper-structure / polychord slash notation: a BARE triad (no 7th/9th of
+  // its own) voiced over a bass note that ISN'T one of its own chord tones is
+  // standard jazz shorthand for an extended chord rooted on the BASS — e.g.
+  // D/C ("D triad over C") = C9#11/C13#11, E/C = Cmaj7#11, Db/G = G7alt.
+  // In that case the bass is the true harmonic root for scale-choice purposes;
+  // extended chords already written with their own quality (Dm7/G, Cmaj7/E,
+  // etc.) are left alone since those are ordinary inversions/pedal basses.
+  if(bassIdx!==null && bassIdx!==rootIdx && (fam==='majorTriad'||fam==='minorTriad')){
+    const triadTones=fam==='majorTriad'?[0,4,7]:[0,3,7];
+    const bassIsChordTone=triadTones.includes((bassIdx-rootIdx+12)%12);
+    if(!bassIsChordTone){
+      const upFromBass=(rootIdx-bassIdx+12)%12;
+      const POLY_MAP={1:'altdom',2:'dom7',4:'major7',6:'altdom'};
+      const impliedFam=POLY_MAP[upFromBass];
+      if(impliedFam)return {rootIdx:bassIdx,fam:impliedFam,bassIdx,raw:chord};
+    }
+  }
+
+  return {rootIdx,fam,bassIdx,raw:chord};
+}
+
+const MAJOR_KEY_DEGREES=[
+  {deg:0,fam:['major7','majorTriad']},{deg:2,fam:['minor7','minorTriad']},
+  {deg:4,fam:['minor7','minorTriad']},{deg:5,fam:['major7','majorTriad']},
+  {deg:7,fam:['dom7','sus','majorTriad']},{deg:9,fam:['minor7','minorTriad']},
+  {deg:11,fam:['halfdim']}
+];
+const MINOR_KEY_DEGREES=[
+  {deg:0,fam:['minor7','minorTriad']},{deg:2,fam:['halfdim']},
+  {deg:3,fam:['major7','majorTriad']},{deg:5,fam:['minor7','minorTriad']},
+  {deg:7,fam:['minor7','dom7','sus','minorTriad']},{deg:8,fam:['major7','majorTriad']},
+  {deg:10,fam:['dom7']}
+];
+function isDiatonic(chordInfo,tonicIdx,isMinorKey){
+  const deg=((chordInfo.rootIdx-tonicIdx)%12+12)%12;
+  const table=isMinorKey?MINOR_KEY_DEGREES:MAJOR_KEY_DEGREES;
+  const entry=table.find(e=>e.deg===deg);
+  return !!(entry&&entry.fam.includes(chordInfo.fam));
+}
+
+// scale used for the "Scale (Mode)" / auto non-diatonic-plain case
+const FAMILY_MODE={
+  major7:'ionian',majorTriad:'ionian',
+  minor7:'dorian',minorTriad:'dorian',
+  dom7:'mixolydian',sus:'mixolydian'
+};
+// scale used for "Melodic Minor" family chords
+const FAMILY_MELMIN={
+  halfdim:'locrianN2',dim7:'wholeHalf',minmaj7:'melodicMinor',
+  min6:'melodicMinor',altdom:'altered'
+};
+const MELMIN_FAMILIES=new Set(['halfdim','dim7','minmaj7','min6','altdom']);
+
+function chordToneIntervals(fam){
+  switch(fam){
+    case 'major7':return [0,4,7,11];
+    case 'majorTriad':return [0,4,7];
+    case 'minor7':return [0,3,7,10];
+    case 'minorTriad':return [0,3,7];
+    case 'dom7':return [0,4,7,10];
+    case 'sus':return [0,5,7,10];
+    case 'halfdim':return [0,3,6,10];
+    case 'dim7':return [0,3,6,9];
+    case 'minmaj7':return [0,3,7,11];
+    case 'min6':return [0,3,7,9];
+    case 'altdom':return [0,4,10]; // guide tones: 1-3-b7
+    default:return [0,4,7];
+  }
+}
+
+// Compute the guide assignment for a single chord instance.
+// mode: 'auto'|'easy'|'pentatonic'|'triad'|'scale'|'melodicminor'
+function guideForChord(chord,tonicIdx,isMinorKey,mode,useFlats){
+  const info=classifyChordQuality(chord);
+  if(!info)return null;
+  const diatonic=isDiatonic(info,tonicIdx,isMinorKey);
+
+  // Color key: scaleKey when there is one ("this bar = Dorian, always blue"),
+  // otherwise the category (Chord Tones / Guide Tones -> the neutral pink).
+  function build(cat,scaleRootIdx,scaleKey,overNote){
+    let name=scaleKey
+      ? `${spellNote(scaleRootIdx,useFlats)} ${SCALE_LIB[scaleKey].name}`
+      : 'Chord Tones';
+    if(overNote)name+=` ${overNote}`;
+    const notes=scaleKey
+      ? scaleNotes(scaleRootIdx,scaleKey,useFlats).join(' ')
+      : chordToneIntervals(info.fam).map(iv=>spellNote((info.rootIdx+iv)%12,useFlats)).join(' ');
+    const colorKey=scaleKey||cat;
+    const hue=guideHue(colorKey,scaleRootIdx);
+    return {cat,scaleRootIdx,scaleKey,label:GUIDE_LABELS[cat],hue,
+      color:guideColor(colorKey,scaleRootIdx),light:guideLight(scaleRootIdx),sat:guideSat(scaleRootIdx),name,notes};
+  }
+  // For the deep-dive pedagogical modes below: same output shape as build(),
+  // but `notes` carries a full teaching paragraph instead of just a note list.
+  function buildRich(cat,scaleRootIdx,scaleKey,name,richNotes){
+    const colorKey=scaleKey||cat;
+    const hue=guideHue(colorKey,scaleRootIdx);
+    return {cat,scaleRootIdx,scaleKey,label:GUIDE_LABELS[cat],hue,
+      color:guideColor(colorKey,scaleRootIdx),light:guideLight(scaleRootIdx),sat:guideSat(scaleRootIdx),name,notes:richNotes};
+  }
+  const N=idx=>spellNote(((idx%12)+12)%12,useFlats);
+
+  if(mode==='easy'){
+    const scaleKey=isMinorKey?'minPent':'majPent';
+    return build('easy',tonicIdx,scaleKey);
+  }
+  if(mode==='pentatonic'){
+    const bright=['major7','majorTriad','dom7','sus'].includes(info.fam);
+    return build('pentatonic',info.fam==='altdom'?(info.rootIdx+1)%12:info.rootIdx, bright?'majPent':'minPent');
+  }
+  if(mode==='triad'){
+    return build('triad',info.rootIdx,null);
+  }
+  if(mode==='scale'){
+    const key=FAMILY_MODE[info.fam]||FAMILY_MELMIN[info.fam]||'ionian';
+    return build('scale',info.rootIdx,key);
+  }
+  if(mode==='melodicminor'){
+    const key=FAMILY_MELMIN[info.fam]||(info.fam==='dom7'?'mixolydian':FAMILY_MODE[info.fam])||'melodicMinor';
+    return build('melodicminor',info.rootIdx,key);
+  }
+
+  // ===== 10 deep-dive pedagogical frameworks =====
+
+  // 1. Barry Harris Method — bebop mastery via the Major 6th Diminished and
+  // Minor 6th Diminished scales, with the core rule: chord tones ALWAYS land
+  // on downbeats, the diminished passing tone always lands on the upbeat.
+  if(mode==='barryharris'){
+    const R=info.rootIdx;
+    if(['major7','majorTriad','dom7','sus'].includes(info.fam)){
+      return buildRich('barryharris',R,'major6Dim',`${N(R)} Major 6th Diminished`,
+        `Barry Harris system: hear this as the ${N(R)}6 chord alternating with the diminished-7th chord built a `+
+        `half-step above it. Scale: ${scaleNotes(R,'major6Dim',useFlats).join(' ')}. The rule that makes this whole `+
+        `system work — chord tones (1-3-5-6) land ON every downbeat, the chromatic passing tone (${N((R+8)%12)}, `+
+        `between the 5th and 6th) only ever falls on an upbeat. Approach strong chord tones with a chromatic note a `+
+        `half-step below, or a full enclosure (note above + note below) to land on the target from both sides.`);
+    }
+    if(['minor7','minorTriad','minmaj7','min6'].includes(info.fam)){
+      return buildRich('barryharris',R,'minor6Dim',`${N(R)} Minor 6th Diminished`,
+        `Barry Harris minor system: this is the ${N(R)}m6 chord alternating with the diminished-7th chord a half-step `+
+        `above it. Scale: ${scaleNotes(R,'minor6Dim',useFlats).join(' ')}. Same downbeat law as the major version — `+
+        `chord tones (1-b3-5-6) ON the beat, the passing tone on the upbeat only. Drill it as a straight 8th-note `+
+        `scale run both directions before layering in chromatic enclosures.`);
+    }
+    if(['halfdim','dim7'].includes(info.fam)){
+      return buildRich('barryharris',R,'wholeHalf',`${N(R)} Diminished Family`,
+        `In the 6th-diminished system a fully-diminished chord is a "resting point" — every one of its 4 notes can `+
+        `act as the top of a different dominant 7th a major 3rd apart. Scale: ${scaleNotes(R,'wholeHalf',useFlats).join(' ')}. `+
+        `Move in minor 3rds and keep obeying the downbeat/chord-tone rule.`);
+    }
+    return buildRich('barryharris',R,'altered',`${N(R)} Altered (dominant resolution)`,
+      `Altered dominant inside the Barry Harris framework: ${scaleNotes(R,'altered',useFlats).join(' ')}. Even through `+
+      `the alterations, keep landing the guide tones (3rd & 7th) on strong beats — that's what keeps bebop lines `+
+      `sounding "inside" no matter how far outside the individual notes get.`);
+  }
+
+  // 2. Triad Pairs / Hexatonics — modern Brecker/Rosenwinkel superimposition:
+  // two major triads a whole step apart, alternated (not scale-run) for wide,
+  // intervallic, open-sounding lines.
+  if(mode==='triadpairs'){
+    const R=info.rootIdx;
+    if(['minor7','minorTriad'].includes(info.fam)){
+      const t1=N((R+3)%12),t2=N((R+5)%12);
+      return buildRich('triadpairs',R,'hexMinor7',`${t1} & ${t2} Triad Pair over ${N(R)}m7`,
+        `Modern Brecker/Rosenwinkel superimposition: stack a ${t1} major triad with a ${t2} major triad (a whole `+
+        `step apart) over this m7 chord — combined notes ${scaleNotes(R,'hexMinor7',useFlats).join(' ')}. Alternate `+
+        `the two triads rather than running them as one scale (123-123, or 132-132, across each triad shape) — that's `+
+        `what produces the wide-interval, open, non-bebop sound instead of a stepwise line.`);
+    }
+    if(['dom7','altdom','sus'].includes(info.fam)){
+      const t1=N((R+8)%12),t2=N((R+10)%12);
+      return buildRich('triadpairs',R,'hexAltDom',`${t1} & ${t2} Triad Pair over ${N(R)}alt`,
+        `Classic altered-dominant hexatonic: superimpose a ${t1} major triad and a ${t2} major triad over this `+
+        `dominant — combined notes ${scaleNotes(R,'hexAltDom',useFlats).join(' ')}. These two triads sit deliberately `+
+        `OUTSIDE the parent altered scale — that mismatch is exactly why the sound is so open and modern. Commit fully `+
+        `to the triad shapes rather than checking them against the scale.`);
+    }
+    const t1=N(R),t2=N((R+2)%12);
+    return buildRich('triadpairs',R,'hexMajor7',`${t1} & ${t2} Triad Pair over ${N(R)}maj7`,
+      `I & II triad pair for a bright, Lydian-leaning major sound — combined notes ${scaleNotes(R,'hexMajor7',useFlats).join(' ')}. `+
+      `Move freely between the two triads (a whole step apart) for wide-interval major-chord lines instead of `+
+      `stepwise bebop phrasing.`);
+  }
+
+  // 3. Guide Tone & Voice Leading (Jim Hall / Hal Galper) — no scale at all.
+  // Only the 3rd and 7th matter; the 7th of THIS chord falls a half-step to
+  // become the 3rd of wherever the harmony goes next.
+  if(mode==='guidetone'){
+    const R=info.rootIdx;
+    const GT={major7:[4,11],majorTriad:[4,7],minor7:[3,10],minorTriad:[3,7],dom7:[4,10],sus:[5,10],
+              halfdim:[3,10],dim7:[3,9],minmaj7:[3,11],min6:[3,9],altdom:[4,10]};
+    const[thirdIv,seventhIv]=GT[info.fam]||[4,7];
+    const third=N(R+thirdIv),seventh=N(R+seventhIv),resolves=N(R+seventhIv-1);
+    return buildRich('guidetone',R,null,`Guide Tones — 3rd=${third}, 7th=${seventh}`,
+      `Jim Hall / Hal Galper approach: forget scales entirely. Your only job on this chord is knowing where the 3rd `+
+      `(${third}) and 7th (${seventh}) sit and landing on one of them on the strong beats — everything else is `+
+      `chromatic or scale-tone connective tissue between those two notes. The 7th (${seventh}) is the note that WANTS `+
+      `to fall a half-step (to ${resolves}) the instant the harmony moves — as soon as you hear the next chord coming, `+
+      `resolve your line by stepping that 7th down into the 3rd of what's next. Practice playing nothing but quarter-note `+
+      `3rds and 7ths through the whole progression before adding any other note back in.`);
+  }
+
+  // 4. Symmetrical / Diminished Concepts — Half-Whole diminished over V7
+  // (esp. 7b9), Whole Tone over augmented/7#5. Both scales repeat identically
+  // at a fixed interval, which is the whole point.
+  if(mode==='symmetrical'){
+    const R=info.rootIdx;
+    if(/#5|aug|\+/i.test(chord)){
+      return buildRich('symmetrical',R,'wholeTone',`${N(R)} Whole Tone`,
+        `Augmented / 7#5 chord — whole-tone scale: ${scaleNotes(R,'wholeTone',useFlats).join(' ')}. Only 2 whole-tone `+
+        `scales exist in all of music, because it repeats every MAJOR 2ND — any shape you play transposes up a whole `+
+        `step and still fits perfectly. That's what gives it the floating, "no gravity" Brecker/Coltrane color.`);
+    }
+    if(['dom7','altdom','sus'].includes(info.fam)){
+      return buildRich('symmetrical',R,'halfWhole',`${N(R)} Half-Whole Diminished`,
+        `V7 (especially 7b9) — half-whole diminished scale: ${scaleNotes(R,'halfWhole',useFlats).join(' ')}. This `+
+        `8-note symmetrical scale repeats every MINOR 3RD, so any lick you build automatically transposes in minor-3rd `+
+        `copies: ${N(R)} → ${N(R+3)} → ${N(R+6)} → ${N(R+9)}. That cascading minor-3rd shape IS the Brecker/Coltrane `+
+        `dominant-diminished sound. In one shape you get b9, #9, natural 3, natural 5, 13 and b7.`);
+    }
+    return buildRich('symmetrical',R,'wholeHalf',`${N(R)} Whole-Half Diminished`,
+      `Fully-diminished chord — whole-half diminished scale: ${scaleNotes(R,'wholeHalf',useFlats).join(' ')}. Also `+
+      `repeats every minor 3rd, so this exact shape simultaneously covers ${N(R)}dim7, ${N(R+3)}dim7, ${N(R+6)}dim7 `+
+      `and ${N(R+9)}dim7 — they're all the same 4 notes in different inversions.`);
+  }
+
+  // 5. Tritone Sub / Harmonic Generalization — over ANY dominant, mentally
+  // replace it with the dominant a tritone away and solo off THAT chord's
+  // Altered or Lydian Dominant sound.
+  if(mode==='tritonesub'){
+    const R=info.rootIdx;
+    if(['dom7','altdom','sus'].includes(info.fam)){
+      const sub=N(R+6);
+      return buildRich('tritonesub',(R+6)%12,'altered',`Think ${sub}7#11 OVER ${N(R)}7 (tritone sub)`,
+        `Harmonic generalization: reinterpret this ${N(R)}7 as ${sub}7 — a tritone away, and they already share the `+
+        `same guide tones (3rd/7th swap places). Solo using EITHER ${sub} Altered (${scaleNotes((R+6)%12,'altered',useFlats).join(' ')}) `+
+        `or ${sub} Lydian Dominant (${scaleNotes((R+6)%12,'lydianDom',useFlats).join(' ')}) — both land as heavy `+
+        `alterations (b9/#9/#11/b13) against the written ${N(R)}7. This is THE standard modern reharmonization move `+
+        `for any V7 chord.`);
+    }
+    return buildRich('tritonesub',R,'lydian',`${N(R)} Lydian (not a dominant — no tritone sub)`,
+      `Tritone substitution is dominant-chord-specific, so play this ${info.fam} chord straight: ${N(R)} Lydian — `+
+      `${scaleNotes(R,'lydian',useFlats).join(' ')}. Save the tritone-sub thinking for the next V7 that shows up.`);
+  }
+
+  // 6. Modern Fusion & Gospel Chops — fast legato 16th-note lines built from
+  // melodic-minor modes; the technical focus is EVENNESS of attack, volume
+  // and note length across the whole run, especially the low register where
+  // clarity usually degrades first.
+  if(mode==='fusiongospel'){
+    const R=info.rootIdx;
+    let key='melodicMinor',label='Melodic Minor';
+    if(['major7','majorTriad'].includes(info.fam)){key='lydianAug';label='Lydian Augmented';}
+    else if(['dom7','sus'].includes(info.fam)){key='lydianDom';label='Lydian Dominant';}
+    else if(info.fam==='altdom'){key='altered';label='Altered';}
+    else if(info.fam==='halfdim'){key='locrianN2';label='Locrian ♮2';}
+    else if(info.fam==='dim7'){key='wholeHalf';label='Whole-Half Diminished';}
+    return buildRich('fusiongospel',R,key,`${N(R)} ${label} — fast linear run`,
+      `Modern fusion/gospel-chops vocabulary: notes ${scaleNotes(R,key,useFlats).join(' ')}, played as one continuous `+
+      `16th-note legato run straight through the mode rather than stopping to outline chord tones. The technical `+
+      `goal is EVENNESS: every note in the run — top to bottom — should speak with the same volume and the same `+
+      `duration, including the lowest notes of the run, which is where most players let clarity and consistency `+
+      `slip first. Practice the run slow with a metronome until every note's attack is indistinguishable from the `+
+      `next, then increase tempo without losing that evenness.`);
+  }
+
+  // 7. Coltrane Matrix (Multi-Tonic Systems) — every chord sits inside an
+  // augmented-triad "matrix" of 3 key centers a major 3rd apart (the Giant
+  // Steps cycle); superimpose brief resolutions into all three.
+  if(mode==='coltranematrix'){
+    const R=info.rootIdx;
+    const k2=(R+4)%12,k3=(R+8)%12;
+    const bright=['major7','majorTriad','dom7','sus'].includes(info.fam);
+    return buildRich('coltranematrix',k2,bright?'majPent':'minPent',
+      `${N(R)} → ${N(k2)} → ${N(k3)} Matrix (target ${N(k2)})`,
+      `Multi-tonic system: this chord's root anchors an augmented-triad matrix of 3 key centers a major 3rd apart — `+
+      `${N(R)}, ${N(k2)}, ${N(k3)} — the exact Giant Steps cycle. Instead of staying put, superimpose brief ii-V-I `+
+      `motion into each of the 3 keys in turn; right now, target ${N(k2)} ${bright?'major':'minor'} pentatonic `+
+      `(${scaleNotes(k2,bright?'majPent':'minPent',useFlats).join(' ')}). Cycling through all 3 centers over an `+
+      `extended ii-V-I creates that dense, cascading Coltrane tension — you're implying the substitution changes `+
+      `before the real harmony even catches up.`);
+  }
+
+  // 8. Pentatonic Sidestepping — slide the WHOLE minor-pentatonic shape a
+  // half-step up, hold the tension deliberately, then slide back down to
+  // resolve cleanly into the real (inside) pentatonic.
+  if(mode==='sidestep'){
+    const R=info.rootIdx;
+    const up=(R+1)%12;
+    return buildRich('sidestep',up,'minPent',`${N(up)} minor pentatonic OUTSIDE ${N(R)}`,
+      `Pentatonic sidestepping: take the minor pentatonic shape you'd normally play here and slide the WHOLE thing `+
+      `up a half-step — ${N(up)} minor pentatonic (${scaleNotes(up,'minPent',useFlats).join(' ')}) over this ${N(R)} `+
+      `chord. Every note clashes on purpose. Stay in the outside shape long enough to sound intentional — a full `+
+      `lick, not just one passing note — then slide that same shape back DOWN a half-step to land cleanly in ${N(R)} `+
+      `minor pentatonic. The tension only reads as deliberate if you commit to it instead of touching it and `+
+      `immediately bailing out.`);
+  }
+
+  // 9. Quartal Harmony (McCoy Tyner) — build lines and arpeggios in stacked
+  // 4ths instead of 3rds; harmonically ambiguous, open, modern.
+  if(mode==='quartal'){
+    const R=info.rootIdx;
+    let key='dorian',label='Dorian';
+    if(['major7','majorTriad'].includes(info.fam)){key='lydian';label='Lydian';}
+    else if(['dom7','sus'].includes(info.fam)){key='mixolydian';label='Mixolydian';}
+    else if(info.fam==='altdom'){key='altered';label='Altered';}
+    else if(info.fam==='halfdim'){key='locrianN2';label='Locrian ♮2';}
+    else if(info.fam==='dim7'){key='wholeHalf';label='Whole-Half Diminished';}
+    const stack=[R,R+5,R+10,R+3].map(N).join('-');
+    return buildRich('quartal',R,key,`${N(R)} ${label} — stacked 4ths`,
+      `McCoy Tyner approach: stay inside ${N(R)} ${label} (${scaleNotes(R,key,useFlats).join(' ')}) but build your `+
+      `lines and arpeggios in perfect 4ths instead of 3rds — e.g. the stack ${stack} instead of a tertian 1-3-5-7 `+
+      `shape. Quartal shapes are harmonically ambiguous (they don't spell out major vs. minor the way triads do), `+
+      `which is exactly what gives this its open, modern, "floating" quality. Move that same 4ths-stack shape up and `+
+      `down the scale by step to build a full quartal line across the whole range of the instrument.`);
+  }
+
+  // 10. Targeting Alterations — isolate ONE dominant tension (b9/#9/b5/#5) at
+  // a time and resolve it deliberately into the 9th or 5th of the I chord a
+  // 4th above, instead of running the whole altered scale indiscriminately.
+  if(mode==='targetalt'){
+    const R=info.rootIdx;
+    if(['dom7','altdom','sus'].includes(info.fam)){
+      const target=(R+5)%12;
+      const b9=N(R+1),s9=N(R+3),b5=N(R+6),s5=N(R+8);
+      return buildRich('targetalt',R,'altered',`Target alterations on ${N(R)}7 → resolve into ${N(target)}`,
+        `Isolate ONE alteration per phrase instead of running the whole altered scale at once: b9 (${b9}) wants to `+
+        `fall a half-step into the 5th of ${N(target)} (${N(target+7)}); #9 (${s9}) resolves down a minor 3rd into `+
+        `the 9th of ${N(target)} (${N(target+2)}), functioning as a blue-note b3; b5 (${b5}, the tritone) pulls down `+
+        `a half-step into the 9th of ${N(target)}; #5 (${s5}) pulls up a half-step into the 5th of ${N(target)}. `+
+        `Land on exactly one of these four tensions per phrase and resolve it deliberately into the target chord `+
+        `tone — that deliberateness is what makes an "outside" note sound intentional instead of wrong.`);
+    }
+    return buildRich('targetalt',R,null,'Chord Tones (not a dominant — no altered target)',
+      `Targeting alterations is dominant-chord-specific (b9/#9/b5/#5 only make functional sense against a V7). On `+
+      `this ${info.fam} chord, just center on its chord tones: ${chordToneIntervals(info.fam).map(iv=>N(R+iv)).join(' ')}.`);
+  }
+
+  // Hadrien Féraud Style — thinks in melodic minor almost exclusively (his
+  // hallmark modern-fusion sound). Every one of the 7 melodic-minor modes is
+  // assigned to its textbook chord type, checking the exact alteration in the
+  // chord symbol first (susb9 -> mode ii, maj7#5 -> mode iii, 7#11 -> mode iv,
+  // 7b13 -> mode v) before falling back to the standard "melodic minor over
+  // everything" substitutions modern players use on plain chords.
+  if(mode==='bebop'){
+    if(/susb9|sus.*b9/i.test(chord))return build('bebop',info.rootIdx,'dorianB2',
+      '(mode ii — susb9)');
+    if(/maj7#5|maj7\+|\+maj7/i.test(chord))return build('bebop',info.rootIdx,'lydianAug',
+      '(mode iii — maj7#5)');
+    if(/7#11|maj7#11/i.test(chord)&&/maj/i.test(chord))return build('bebop',info.rootIdx,'lydian',
+      '(maj7#11 — plain Lydian, natural 7)');
+    if(/7#11/i.test(chord))return build('bebop',info.rootIdx,'lydianDom',
+      '(mode iv — 7#11)');
+    if(/7b13/i.test(chord))return build('bebop',info.rootIdx,'mixoB6',
+      '(mode v — 7b13)');
+    if(['minmaj7','min6'].includes(info.fam))return build('bebop',info.rootIdx,'melodicMinor',
+      '(mode i — m6/m-maj7)');
+    if(info.fam==='halfdim')return build('bebop',info.rootIdx,'locrianN2','(mode vi — m7b5)');
+    if(info.fam==='altdom')return build('bebop',info.rootIdx,'altered','(mode vii — 7alt)');
+    if(info.fam==='dim7')return build('bebop',info.rootIdx,'wholeHalf','(symmetric dim7 — outside melodic minor)');
+    if(['major7','majorTriad'].includes(info.fam))return build('bebop',info.rootIdx,'lydianAug',
+      '(mode iii sub — plain maj7 reharmonized outside)');
+    if(['dom7','sus'].includes(info.fam))return build('bebop',info.rootIdx,'lydianDom',
+      '(mode iv sub — plain V7)');
+    return build('bebop',info.rootIdx,'melodicMinor','(mode i sub — plain m7)');
+  }
+
+  // Bill Evans Style — modal/impressionistic: Lydian over major chords for
+  // that floating, open sound; Dorian for minor (his "So What" signature);
+  // Lydian Dominant / Altered for dominants.
+  if(mode==='evans'){
+    if(['major7','majorTriad'].includes(info.fam))return build('evans',info.rootIdx,'lydian');
+    if(['minor7','minorTriad'].includes(info.fam))return build('evans',info.rootIdx,'dorian');
+    if(['dom7','sus'].includes(info.fam))return build('evans',info.rootIdx,'lydianDom');
+    if(info.fam==='altdom')return build('evans',info.rootIdx,'altered');
+    if(info.fam==='halfdim')return build('evans',info.rootIdx,'locrianN2');
+    if(info.fam==='dim7')return build('evans',info.rootIdx,'wholeHalf');
+    return build('evans',info.rootIdx,'melodicMinor');
+  }
+
+  // John Coltrane Style — "Giant Steps" major-third substitution: superimpose
+  // a pentatonic built a major 3rd above the chord root (his key-center-cycling
+  // vocabulary), explicitly framed as playing OVER the written chord.
+  if(mode==='coltrane'){
+    const bright=['major7','majorTriad','dom7','sus'].includes(info.fam);
+    const subRoot=(info.rootIdx+4)%12;
+    return build('coltrane',subRoot,bright?'majPent':'minPent',
+      `— superimpose over ${spellNote(info.rootIdx,useFlats)}${info.fam==='dom7'||info.fam==='sus'?'7':''}`);
+  }
+
+  // Outside Style — real chord-superimposition vocabulary:
+  //  - dominant-function chords -> tritone substitution (the classic "outside"
+  //    move: superimpose the dominant chord/scale a tritone away, e.g. Db7
+  //    OVER G7) using Lydian Dominant for that substitute chord.
+  //  - everything else -> chromatic side-slip (superimpose the same shape a
+  //    half-step up, then resolve back down into the real chord).
+  if(mode==='outside'){
+    if(['dom7','sus','altdom'].includes(info.fam)){
+      const subRoot=(info.rootIdx+6)%12;
+      return build('outside',subRoot,'lydianDom',
+        `(tritone sub) — superimpose ${spellNote(subRoot,useFlats)}7 OVER ${spellNote(info.rootIdx,useFlats)}${famToChordSuffix(info.fam)}`);
+    }
+    const bright=['major7','majorTriad'].includes(info.fam);
+    const slipRoot=(info.rootIdx+1)%12;
+    return build('outside',slipRoot,bright?'majPent':'minPent',
+      `— side-slip a half-step up OVER ${spellNote(info.rootIdx,useFlats)}${famToChordSuffix(info.fam)}, resolve back down`);
+  }
+
+  // Charlie Parker Style — bebop's founding vocabulary: 8-note bebop scales
+  // (a diatonic mode plus one chromatic passing tone) built for continuous
+  // 8th-note lines that land chord tones on the beat.
+  if(mode==='parker'){
+    if(['dom7','sus','altdom'].includes(info.fam))return build('parker',info.rootIdx,'bebopDom');
+    if(['minor7','minorTriad'].includes(info.fam))return build('parker',info.rootIdx,'bebopMinor');
+    if(info.fam==='halfdim')return build('parker',info.rootIdx,'locrianN2');
+    if(info.fam==='dim7')return build('parker',info.rootIdx,'wholeHalf');
+    return build('parker',info.rootIdx,'bebopMajor');
+  }
+
+  // Miles Davis Style — modal-era simplicity: plain diatonic modes only
+  // (Kind of Blue), no outside alteration, space over density.
+  if(mode==='miles'){
+    if(['minor7','minorTriad'].includes(info.fam))return build('miles',info.rootIdx,'dorian');
+    if(['dom7','sus','altdom'].includes(info.fam))return build('miles',info.rootIdx,'mixolydian');
+    if(info.fam==='halfdim')return build('miles',info.rootIdx,'locrianN2');
+    if(info.fam==='dim7')return build('miles',info.rootIdx,'wholeHalf');
+    return build('miles',info.rootIdx,'ionian');
+  }
+
+  // Sonny Rollins Style — thematic, calypso- and blues-rooted vocabulary:
+  // the blues scale over almost everything, chord tones for the rest.
+  if(mode==='rollins'){
+    if(['dom7','sus','altdom','minor7','minorTriad'].includes(info.fam))
+      return build('rollins',info.rootIdx,'blues');
+    if(info.fam==='halfdim')return build('rollins',info.rootIdx,'locrianN2');
+    if(info.fam==='dim7')return build('rollins',info.rootIdx,'wholeHalf');
+    return build('rollins',info.rootIdx,'majPent');
+  }
+
+  // Wes Montgomery Style — soulful bebop-blues: Mixolydian on dominants,
+  // Dorian on minors, blues scale for extra grit on altered dominants.
+  if(mode==='wes'){
+    if(['dom7','sus'].includes(info.fam))return build('wes',info.rootIdx,'mixolydian');
+    if(info.fam==='altdom')return build('wes',info.rootIdx,'blues');
+    if(['minor7','minorTriad'].includes(info.fam))return build('wes',info.rootIdx,'dorian');
+    if(info.fam==='halfdim')return build('wes',info.rootIdx,'locrianN2');
+    if(info.fam==='dim7')return build('wes',info.rootIdx,'wholeHalf');
+    return build('wes',info.rootIdx,'majPent');
+  }
+
+  // Pat Metheny Style — bright, lyrical, modern: Lydian is his signature
+  // major-chord color; otherwise standard modern-jazz modal choices.
+  if(mode==='metheny'){
+    if(['major7','majorTriad'].includes(info.fam))return build('metheny',info.rootIdx,'lydian');
+    if(['minor7','minorTriad'].includes(info.fam))return build('metheny',info.rootIdx,'dorian');
+    if(['dom7','sus'].includes(info.fam))return build('metheny',info.rootIdx,'lydianDom');
+    if(info.fam==='altdom')return build('metheny',info.rootIdx,'altered');
+    if(info.fam==='halfdim')return build('metheny',info.rootIdx,'locrianN2');
+    if(info.fam==='dim7')return build('metheny',info.rootIdx,'wholeHalf');
+    return build('metheny',info.rootIdx,'melodicMinor');
+  }
+
+  // Herbie Hancock Style — Maiden Voyage-era modal/quartal thinking, with his
+  // fondness for whole-tone color on dominants.
+  if(mode==='hancock'){
+    if(['major7','majorTriad'].includes(info.fam))return build('hancock',info.rootIdx,'lydian');
+    if(['dom7','sus'].includes(info.fam))return build('hancock',info.rootIdx,'wholeTone');
+    if(info.fam==='altdom')return build('hancock',info.rootIdx,'altered');
+    if(info.fam==='halfdim')return build('hancock',info.rootIdx,'locrianN2');
+    if(info.fam==='dim7')return build('hancock',info.rootIdx,'wholeHalf');
+    return build('hancock',info.rootIdx,'dorian');
+  }
+
+  // Michael Brecker Style — dense, modern vocabulary built on the dominant
+  // (half-whole) diminished scale and the altered scale, his best-documented
+  // signature dominant-chord sounds.
+  if(mode==='brecker'){
+    if(['dom7','sus'].includes(info.fam))return build('brecker',info.rootIdx,'halfWhole');
+    if(info.fam==='altdom')return build('brecker',info.rootIdx,'altered');
+    if(['major7','majorTriad'].includes(info.fam))return build('brecker',info.rootIdx,'lydian');
+    if(info.fam==='halfdim')return build('brecker',info.rootIdx,'locrianN2');
+    if(info.fam==='dim7')return build('brecker',info.rootIdx,'wholeHalf');
+    return build('brecker',info.rootIdx,'melodicMinor');
+  }
+
+  // Pat Martino Style — his published "conversion" system: reduce every
+  // chord to a minor-6 or diminished-7 relationship and improvise from there.
+  if(mode==='martino'){
+    if(['dom7','sus','altdom'].includes(info.fam))return build('martino',info.rootIdx,'wholeHalf',
+      '(dominant → dim7 conversion)');
+    if(info.fam==='dim7')return build('martino',info.rootIdx,'wholeHalf');
+    if(info.fam==='halfdim')return build('martino',info.rootIdx,'locrianN2');
+    if(['minor7','minorTriad'].includes(info.fam))return build('martino',info.rootIdx,'dorian',
+      '(min6 conversion)');
+    const relMinorRoot=(info.rootIdx+9)%12;
+    return build('martino',relMinorRoot,'dorian',
+      `(min6 conversion of ${spellNote(info.rootIdx,useFlats)})`);
+  }
+
+  // Chick Corea Style — Spanish/flamenco-tinged harmonic-minor vocabulary
+  // ("Spain," La Fiesta): Phrygian Dominant is his signature dominant color.
+  if(mode==='corea'){
+    if(['dom7','sus','altdom'].includes(info.fam))return build('corea',info.rootIdx,'phrygianDom');
+    if(['minor7','minorTriad'].includes(info.fam))return build('corea',info.rootIdx,'dorian');
+    if(['major7','majorTriad'].includes(info.fam))return build('corea',info.rootIdx,'lydian');
+    if(info.fam==='halfdim')return build('corea',info.rootIdx,'locrianN2');
+    if(info.fam==='dim7')return build('corea',info.rootIdx,'wholeHalf');
+    return build('corea',info.rootIdx,'harmonicMinor');
+  }
+
+  // Joe Henderson Style — the "inside/outside" master: whole-tone on plain
+  // dominants, dominant-diminished on altered ones, modal otherwise.
+  if(mode==='henderson'){
+    if(['dom7','sus'].includes(info.fam))return build('henderson',info.rootIdx,'wholeTone');
+    if(info.fam==='altdom')return build('henderson',info.rootIdx,'halfWhole');
+    if(['minor7','minorTriad'].includes(info.fam))return build('henderson',info.rootIdx,'dorian');
+    if(['major7','majorTriad'].includes(info.fam))return build('henderson',info.rootIdx,'lydian');
+    if(info.fam==='halfdim')return build('henderson',info.rootIdx,'locrianN2');
+    if(info.fam==='dim7')return build('henderson',info.rootIdx,'wholeHalf');
+    return build('henderson',info.rootIdx,'melodicMinor');
+  }
+
+  // AUTO
+  if(MELMIN_FAMILIES.has(info.fam)){
+    return build('melodicminor',info.rootIdx,FAMILY_MELMIN[info.fam]);
+  }
+  if(diatonic){
+    // safe/diatonic chord — target ITS OWN pentatonic (not one flat scale for
+    // the whole tune) so consecutive diatonic chords still show distinct,
+    // chord-appropriate colors instead of collapsing into one block.
+    const bright=['major7','majorTriad','dom7','sus'].includes(info.fam);
+    return build('easy',info.rootIdx,bright?'majPent':'minPent');
+  }
+  const modeKey=FAMILY_MODE[info.fam]||'ionian';
+  return build('scale',info.rootIdx,modeKey);
+}
+
+function famToChordSuffix(fam){
+  switch(fam){
+    case 'major7':return 'maj7'; case 'minor7':return 'm7'; case 'dom7':return '7';
+    case 'halfdim':return 'm7b5'; case 'dim7':return 'dim7';
+    case 'minmaj7':return 'm(maj7)'; case 'min6':return 'm6';
+    case 'altdom':return '7alt'; case 'sus':return '7sus4';
+    default:return 'maj7';
+  }
+}
+
+// Per-bar guide computation — NO path/ii-V-I grouping. Every bar (and every
+// chord within a bar) gets its own independent recommendation and color, so
+// scale changes are never hidden behind a merged block.
+function buildGuideZones(song){
+  const isMinorKey=/m$/.test(song.key);
+  const tonicIdx=keyRootIndex(song.key);
+  const useFlats=FLAT_KEYS.has(song.key);
+
+  const flat=[];
+  song.sections.forEach((sec,secIdx)=>{
+    sec.bars.forEach((bar,barIdx)=>{
+      let g;
+      if(bar.chords.length>1 && guideStyle==='auto'){
+        // fast harmonic rhythm within one bar -> recommend triad/arpeggio
+        const firstInfo=classifyChordQuality(bar.chords[0]);
+        const rIdx=firstInfo?firstInfo.rootIdx:0;
+        g={cat:'triad',hue:guideHue('triad',rIdx),color:guideColor('triad',rIdx),
+           light:guideLight(rIdx),sat:guideSat(rIdx),label:GUIDE_LABELS.triad,
+           name:'Arpeggiate (fast changes)',
+           notes:bar.chords.map(c=>{
+             const info=classifyChordQuality(c);
+             return info? c+': '+chordToneIntervals(info.fam).map(iv=>spellNote((info.rootIdx+iv)%12,useFlats)).join('-'):c;
+           }).join('  •  ')};
+      }else{
+        g=guideForChord(bar.chords[0],tonicIdx,isMinorKey,guideStyle,useFlats)||
+          {cat:'easy',hue:guideHue('easy',tonicIdx),color:guideColor('easy',tonicIdx),
+           light:guideLight(tonicIdx),sat:guideSat(tonicIdx),label:GUIDE_LABELS.easy,name:'—',notes:''};
+      }
+      flat.push({secIdx,barIdx,g});
+    });
+  });
+  return flat;
+}
+
+let guideMode=false;
+let guideStyle='auto';
+function toggleGuide(){
+  guideMode=!guideMode;
+  document.getElementById('guideBtn').style.background=guideMode?'var(--gold)':'';
+  document.getElementById('guideBtn').style.color=guideMode?'var(--black)':'';
+  document.getElementById('guideStyleBar').classList.toggle('show',guideMode);
+  if(guideMode&&nashvilleMode)toggleNashville();
+  renderChart();
+}
+function setGuideStyle(v){guideStyle=v;renderChart();}
+
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarBackdrop').classList.toggle('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarBackdrop').classList.remove('show');
+}
+
+/* ================= Song data ================= */
+function makeBar(...chords){return {chords:chords.length?chords:['']};}
+function makeSection(label,bars){return {label,bars};}
+
+// Ids from the previous song-library versions — stripped out of any saved
+// browser data on load so the practice-progression library replaces them cleanly.
+const LEGACY_SONG_IDS=new Set([
+  'acid-jazz-cmin','neo-soul-bb',
+  'th1-purpeech-fear','th2-bodyslam-kwamrak','th3-pun-livingdeath','th4-pun-rakhaitherdairoo',
+  'th5-gavind-lastwalk','th6-maiyarap-rainzone','th7-blvckheart-goodtime','th8-proxie-boysdontcry',
+  'th9-pun-foreverandever','th10-bedroomaudio-rakmeusong'
+]);
+
+/* All practice progressions given in C major so they're easy to compare —
+   hit Transpose to move any of them into any key instantly. */
+const DEFAULT_LIBRARY=[
+  {
+    id:'prog-1-6-2-5',
+    title:'1–6–2–5',
+    style:'50s Progression (I–vi–ii–V)',
+    key:'C',
+    time:'4/4',
+    tempo:100,
+    sections:[
+      makeSection('Loop',[makeBar('Cmaj7'),makeBar('Am7'),makeBar('Dm7'),makeBar('G7'),
+                           makeBar('Cmaj7'),makeBar('Am7'),makeBar('Dm7'),makeBar('G7')])
+    ]
+  },
+  {
+    id:'prog-2-5-1-6',
+    title:'2–5–1–6',
+    style:'Jazz Turnaround (ii–V–I–vi)',
+    key:'C',
+    time:'4/4',
+    tempo:100,
+    sections:[
+      makeSection('Loop',[makeBar('Dm7'),makeBar('G7'),makeBar('Cmaj7'),makeBar('Am7'),
+                           makeBar('Dm7'),makeBar('G7'),makeBar('Cmaj7'),makeBar('Am7')])
+    ]
+  },
+  {
+    id:'prog-4-3-2-1',
+    title:'4–3–2–1',
+    style:'Descending (IV–iii–ii–I)',
+    key:'C',
+    time:'4/4',
+    tempo:100,
+    sections:[
+      makeSection('Loop',[makeBar('Fmaj7'),makeBar('Em7'),makeBar('Dm7'),makeBar('Cmaj7'),
+                           makeBar('Fmaj7'),makeBar('Em7'),makeBar('Dm7'),makeBar('Cmaj7')])
+    ]
+  },
+  {
+    id:'prog-b6-b7-1',
+    title:'b6–b7–1',
+    style:'Mixolydian / Rock Cadence (bVI–bVII–I)',
+    key:'C',
+    time:'4/4',
+    tempo:100,
+    sections:[
+      makeSection('Loop',[makeBar('Ab'),makeBar('Bb'),makeBar('C'),makeBar('C'),
+                           makeBar('Ab'),makeBar('Bb'),makeBar('C'),makeBar('C')])
+    ]
+  },
+  {
+    id:'prog-1-5-6-4',
+    title:'1–5–6–4',
+    style:'Pop / Axis Progression (I–V–vi–IV)',
+    key:'C',
+    time:'4/4',
+    tempo:100,
+    sections:[
+      makeSection('Loop',[makeBar('C'),makeBar('G'),makeBar('Am'),makeBar('F'),
+                           makeBar('C'),makeBar('G'),makeBar('Am'),makeBar('F')])
+    ]
+  },
+  {
+    id:'prog-6-4-1-5',
+    title:'6–4–1–5',
+    style:'"Sensitive Female" Progression (vi–IV–I–V)',
+    key:'C',
+    time:'4/4',
+    tempo:100,
+    sections:[
+      makeSection('Loop',[makeBar('Am'),makeBar('F'),makeBar('C'),makeBar('G'),
+                           makeBar('Am'),makeBar('F'),makeBar('C'),makeBar('G')])
+    ]
+  },
+  {
+    id:'prog-2-5-1',
+    title:'2–5–1',
+    style:'Jazz Cadence (ii–V–I)',
+    key:'C',
+    time:'4/4',
+    tempo:100,
+    sections:[
+      makeSection('Loop',[makeBar('Dm7'),makeBar('G7'),makeBar('Cmaj7'),makeBar('Cmaj7'),
+                           makeBar('Dm7'),makeBar('G7'),makeBar('Cmaj7'),makeBar('Cmaj7')])
+    ]
+  },
+  {
+    id:'prog-1-4-5-4',
+    title:'1–4–5–4',
+    style:'Blues / Rock Cadence (I–IV–V–IV)',
+    key:'C',
+    time:'4/4',
+    tempo:100,
+    sections:[
+      makeSection('Loop',[makeBar('C'),makeBar('F'),makeBar('G'),makeBar('F'),
+                           makeBar('C'),makeBar('F'),makeBar('G'),makeBar('F')])
+    ]
+  },
+
+  /* ===== 10 Jazz Standards — standard/traditional changes; fake-book
+     editions vary slightly bar-to-bar, cross-check a trusted source
+     (Real Book, iReal Pro) before relying on these for a gig. ===== */
+  {
+    id:'std-autumn-leaves',
+    title:'Autumn Leaves',
+    style:'Jazz Standard (Kosma)',
+    key:'Gm',
+    time:'4/4',
+    tempo:120,
+    sections:[
+      makeSection('A',[makeBar('Cm7'),makeBar('F7'),makeBar('Bbmaj7'),makeBar('Ebmaj7'),
+                        makeBar('Am7b5'),makeBar('D7'),makeBar('Gm7'),makeBar('Gm7')]),
+      makeSection('A2',[makeBar('Cm7'),makeBar('F7'),makeBar('Bbmaj7'),makeBar('Ebmaj7'),
+                        makeBar('Am7b5'),makeBar('D7'),makeBar('Gm7'),makeBar('Gm7')]),
+      makeSection('B',[makeBar('Am7b5'),makeBar('D7'),makeBar('Gm7'),makeBar('Gm7'),
+                        makeBar('Am7b5'),makeBar('D7'),makeBar('Gm7'),makeBar('Gm7')]),
+      makeSection('C',[makeBar('Am7b5'),makeBar('D7'),makeBar('Gm7'),makeBar('C7'),
+                        makeBar('Fmaj7'),makeBar('Fmaj7'),makeBar('Am7b5','D7'),makeBar('Gm7')])
+    ]
+  },
+  {
+    id:'std-blue-bossa',
+    title:'Blue Bossa',
+    style:'Jazz Standard (Dorham)',
+    key:'Cm',
+    time:'4/4',
+    tempo:160,
+    sections:[
+      makeSection('A',[makeBar('Cm7'),makeBar('Fm7'),makeBar('Dm7b5'),makeBar('G7'),
+                        makeBar('Ebm7'),makeBar('Ab7'),makeBar('Dbmaj7'),makeBar('Dbmaj7')]),
+      makeSection('B',[makeBar('Dm7b5'),makeBar('G7'),makeBar('Cm7'),makeBar('Cm7'),
+                        makeBar('Dm7b5'),makeBar('G7'),makeBar('Cm7'),makeBar('Cm7')])
+    ]
+  },
+  {
+    id:'std-all-the-things-you-are',
+    title:'All The Things You Are',
+    style:'Jazz Standard (Kern)',
+    key:'Ab',
+    time:'4/4',
+    tempo:132,
+    sections:[
+      makeSection('A',[makeBar('Fm7'),makeBar('Bbm7'),makeBar('Eb7'),makeBar('Abmaj7'),
+                        makeBar('Dbmaj7'),makeBar('G7'),makeBar('Cmaj7'),makeBar('Cmaj7')]),
+      makeSection('A2',[makeBar('Cm7'),makeBar('Fm7'),makeBar('Bb7'),makeBar('Ebmaj7'),
+                        makeBar('Abmaj7'),makeBar('D7'),makeBar('Gmaj7'),makeBar('Gmaj7')]),
+      makeSection('B',[makeBar('Am7'),makeBar('D7'),makeBar('Gmaj7'),makeBar('Gmaj7'),
+                        makeBar('F#m7'),makeBar('B7'),makeBar('Emaj7'),makeBar('Caug')]),
+      makeSection('C',[makeBar('Fm7'),makeBar('Bbm7'),makeBar('Eb7'),makeBar('Abmaj7'),
+                        makeBar('Dbmaj7'),makeBar('Dbm7'),makeBar('Cm7'),makeBar('Bdim7')]),
+      makeSection('Tag',[makeBar('Bbm7'),makeBar('Eb7'),makeBar('Abmaj7'),makeBar('Abmaj7')])
+    ]
+  },
+  {
+    id:'std-girl-from-ipanema',
+    title:'The Girl From Ipanema',
+    style:'Bossa Nova (Jobim)',
+    key:'F',
+    time:'4/4',
+    tempo:130,
+    sections:[
+      makeSection('A',[makeBar('Fmaj7'),makeBar('G7'),makeBar('Gm7'),makeBar('Gb7'),
+                        makeBar('Fmaj7'),makeBar('Gb7'),makeBar('B7'),makeBar('B7')]),
+      makeSection('Bridge',[makeBar('F#maj7'),makeBar('B7'),makeBar('F#maj7'),makeBar('D7'),
+                        makeBar('Gm7'),makeBar('Eb7'),makeBar('Am7'),makeBar('D7')]),
+      makeSection('A2',[makeBar('Fmaj7'),makeBar('G7'),makeBar('Gm7'),makeBar('Gb7'),
+                        makeBar('Fmaj7'),makeBar('Gb7'),makeBar('B7'),makeBar('B7')])
+    ]
+  },
+  {
+    id:'std-giant-steps',
+    title:'Giant Steps',
+    style:'Jazz Standard (Coltrane — "Coltrane Changes")',
+    key:'B',
+    time:'4/4',
+    tempo:280,
+    sections:[
+      makeSection('Chorus',[
+        makeBar('Bmaj7','D7'),makeBar('Gmaj7','Bb7'),makeBar('Ebmaj7'),makeBar('Am7','D7'),
+        makeBar('Gmaj7','Bb7'),makeBar('Ebmaj7','F#7'),makeBar('Bmaj7'),makeBar('Fm7','Bb7'),
+        makeBar('Ebmaj7'),makeBar('Am7','D7'),makeBar('Gmaj7'),makeBar('C#m7','F#7'),
+        makeBar('Bmaj7'),makeBar('Fm7','Bb7'),makeBar('Ebmaj7'),makeBar('C#m7','F#7')
+      ])
+    ]
+  },
+  {
+    id:'std-take-the-a-train',
+    title:'Take the "A" Train',
+    style:'Jazz Standard (Strayhorn)',
+    key:'C',
+    time:'4/4',
+    tempo:180,
+    sections:[
+      makeSection('A',[makeBar('Cmaj7'),makeBar('Cmaj7'),makeBar('D7'),makeBar('D7'),
+                        makeBar('Dm7'),makeBar('Dm7'),makeBar('G7'),makeBar('G7')]),
+      makeSection('A2',[makeBar('Cmaj7'),makeBar('Cmaj7'),makeBar('D7'),makeBar('D7'),
+                        makeBar('Dm7'),makeBar('Dm7'),makeBar('G7'),makeBar('G7')]),
+      makeSection('Bridge',[makeBar('Gm7'),makeBar('C7'),makeBar('Fmaj7'),makeBar('Fmaj7'),
+                        makeBar('Am7'),makeBar('D7'),makeBar('Dm7'),makeBar('G7')]),
+      makeSection('A3',[makeBar('Cmaj7'),makeBar('Cmaj7'),makeBar('D7'),makeBar('D7'),
+                        makeBar('Dm7'),makeBar('Dm7'),makeBar('G7'),makeBar('Cmaj7')])
+    ]
+  },
+  {
+    id:'std-fly-me-to-the-moon',
+    title:'Fly Me to the Moon',
+    style:'Jazz Standard (Howard)',
+    key:'Am',
+    time:'4/4',
+    tempo:120,
+    sections:[
+      makeSection('A',[makeBar('Am7'),makeBar('Dm7'),makeBar('G7'),makeBar('Cmaj7'),
+                        makeBar('Fmaj7'),makeBar('Bm7b5'),makeBar('E7'),makeBar('Am7')]),
+      makeSection('A2',[makeBar('Dm7'),makeBar('G7'),makeBar('Cmaj7'),makeBar('Am7'),
+                        makeBar('Dm7'),makeBar('G7'),makeBar('Cmaj7'),makeBar('Cmaj7')]),
+      makeSection('B',[makeBar('Fmaj7'),makeBar('Bm7b5'),makeBar('E7'),makeBar('Am7'),
+                        makeBar('Dm7'),makeBar('G7'),makeBar('Cmaj7'),makeBar('Cmaj7')]),
+      makeSection('A3',[makeBar('Am7'),makeBar('Dm7'),makeBar('G7'),makeBar('Cmaj7'),
+                        makeBar('Fmaj7'),makeBar('Bm7b5'),makeBar('E7'),makeBar('Am7')])
+    ]
+  },
+  {
+    id:'std-stella-by-starlight',
+    title:'Stella By Starlight',
+    style:'Jazz Standard (Young)',
+    key:'Bb',
+    time:'4/4',
+    tempo:120,
+    sections:[
+      makeSection('A',[makeBar('Em7b5'),makeBar('A7'),makeBar('Cm7'),makeBar('F7'),
+                        makeBar('Fm7'),makeBar('Bb7'),makeBar('Ebmaj7'),makeBar('Ab7')]),
+      makeSection('B',[makeBar('Bbmaj7'),makeBar('Em7b5'),makeBar('A7'),makeBar('Dm7'),
+                        makeBar('Dm7'),makeBar('G7'),makeBar('Cm7'),makeBar('Cm7')]),
+      makeSection('C',[makeBar('F7'),makeBar('Bbmaj7'),makeBar('Fm7'),makeBar('Bb7'),
+                        makeBar('Ebmaj7'),makeBar('Ab7'),makeBar('Bbmaj7'),makeBar('F7')]),
+      makeSection('A2',[makeBar('Bbmaj7'),makeBar('Em7b5'),makeBar('A7'),makeBar('Dm7'),
+                        makeBar('G7'),makeBar('Cm7'),makeBar('F7'),makeBar('Bbmaj7')])
+    ]
+  },
+  {
+    id:'std-someday-my-prince-will-come',
+    title:'Someday My Prince Will Come',
+    style:'Jazz Standard (Churchill)',
+    key:'Bb',
+    time:'3/4',
+    tempo:144,
+    sections:[
+      makeSection('A',[makeBar('Bbmaj7'),makeBar('Bbmaj7'),makeBar('Gm7'),makeBar('Gm7'),
+                        makeBar('Cm7'),makeBar('F7'),makeBar('Bbmaj7'),makeBar('Bbmaj7')]),
+      makeSection('A2',[makeBar('Fm7'),makeBar('Bb7'),makeBar('Ebmaj7'),makeBar('Ebmaj7'),
+                        makeBar('Bbmaj7'),makeBar('G7'),makeBar('Cm7'),makeBar('F7')]),
+      makeSection('B',[makeBar('Dm7'),makeBar('G7'),makeBar('Cm7'),makeBar('F7'),
+                        makeBar('Dm7'),makeBar('G7'),makeBar('Cm7'),makeBar('F7')]),
+      makeSection('A3',[makeBar('Bbmaj7'),makeBar('Bbmaj7'),makeBar('Gm7'),makeBar('Gm7'),
+                        makeBar('Cm7'),makeBar('F7'),makeBar('Bbmaj7'),makeBar('Bbmaj7')])
+    ]
+  },
+  {
+    id:'std-oleo',
+    title:'Oleo',
+    style:'Jazz Standard (Rollins — Rhythm Changes)',
+    key:'Bb',
+    time:'4/4',
+    tempo:260,
+    sections:[
+      makeSection('A',[makeBar('Bbmaj7'),makeBar('G7'),makeBar('Cm7'),makeBar('F7'),
+                        makeBar('Bbmaj7'),makeBar('G7'),makeBar('Cm7'),makeBar('F7')]),
+      makeSection('A2',[makeBar('Bbmaj7'),makeBar('G7'),makeBar('Cm7'),makeBar('F7'),
+                        makeBar('Bbmaj7'),makeBar('G7'),makeBar('Cm7'),makeBar('F7')]),
+      makeSection('Bridge',[makeBar('D7'),makeBar('D7'),makeBar('G7'),makeBar('G7'),
+                        makeBar('C7'),makeBar('C7'),makeBar('F7'),makeBar('F7')]),
+      makeSection('A3',[makeBar('Bbmaj7'),makeBar('G7'),makeBar('Cm7'),makeBar('F7'),
+                        makeBar('Bbmaj7'),makeBar('G7'),makeBar('Cm7'),makeBar('F7')])
+    ]
+  }
+];
+
+const TENSIONS=['maj7','6','6/9','maj9','maj13','7','9','13','sus2','sus4','9sus4',
+  'm7','m6','m9','m11','m13','m7b5','dim7','7#9','7b9','7#11','7b13','7alt','add9'];
+
+let songs=[];
+let currentId=null;
+let activeSlot=null;
+let nashvilleMode=false;
+let scrolling=false, scrollTimer=null;
+
+function loadSongs(){
+  let saved=null;
+  try{saved=JSON.parse(localStorage.getItem('guySoloGuide'));}catch(e){}
+  if(saved&&saved.length){
+    // drop any songs from earlier library versions (old real-song presets)
+    songs=saved.filter(s=>!LEGACY_SONG_IDS.has(s.id));
+    // merge in any library songs the user doesn't have yet (e.g. newly added songs)
+    const existingIds=new Set(songs.map(s=>s.id));
+    DEFAULT_LIBRARY.forEach(d=>{
+      if(!existingIds.has(d.id))songs.push(JSON.parse(JSON.stringify(d)));
+    });
+    if(!songs.length)songs=JSON.parse(JSON.stringify(DEFAULT_LIBRARY));
+  }else{
+    songs=JSON.parse(JSON.stringify(DEFAULT_LIBRARY));
+  }
+  currentId=songs[0].id;
+  persist();
+}
+function persist(){
+  try{localStorage.setItem('guySoloGuide',JSON.stringify(songs));}catch(e){}
+}
+function currentSong(){return songs.find(s=>s.id===currentId);}
+
+/* ================= Rendering ================= */
+function renderSongList(){
+  const q=document.getElementById('search').value.toLowerCase();
+  const ul=document.getElementById('songList');
+  ul.innerHTML='';
+  songs.filter(s=>s.title.toLowerCase().includes(q)||s.style.toLowerCase().includes(q))
+    .forEach(s=>{
+      const li=document.createElement('li');
+      li.className=s.id===currentId?'active':'';
+      li.innerHTML=`${s.title}<span class="meta">${s.style} · ${s.key} · ${s.tempo} bpm</span>`;
+      li.onclick=()=>{currentId=s.id;nashvilleMode=false;renderAll();if(window.innerWidth<=768)closeSidebar();};
+      ul.appendChild(li);
+    });
+}
+
+function renderHeader(){
+  const s=currentSong();
+  document.getElementById('titleField').value=s.title;
+  document.getElementById('styleField').value=s.style;
+  document.getElementById('keyField').value=s.key;
+  document.getElementById('timeField').value=s.time;
+  document.getElementById('tempoField').value=s.tempo;
+  const srcEl=document.getElementById('sourceLine');
+  srcEl.innerHTML = s.source
+    ? 'Source: '+(s.sourceUrl?`<a href="${s.sourceUrl}" target="_blank" rel="noopener">${s.source}</a>`:s.source)
+    : '';
+  const picker=document.getElementById('keyPicker');
+  picker.innerHTML='<option value="">Jump to key…</option>'+
+    ALL_KEYS.map(k=>`<option value="${k}">${k}</option>`).join('');
+}
+
+function renderChart(){
+  const s=currentSong();
+  const area=document.getElementById('chartArea');
+  area.innerHTML='';
+  const useFlats=FLAT_KEYS.has(s.key);
+  const rootIdx=keyRootIndex(s.key);
+
+  let guideMap=null;
+  const summaryEl=document.getElementById('guideSummary');
+  if(guideMode){
+    const flat=buildGuideZones(s);
+    guideMap={};
+    flat.forEach(it=>{guideMap[it.secIdx+'_'+it.barIdx]=it.g;});
+    summaryEl.classList.add('show');
+    const distinctColors=new Set(flat.map(it=>it.g.color)).size;
+    summaryEl.innerHTML=`<span class="dot" style="background:${flat[0]?flat[0].g.color:'#888'}"></span>
+      Every bar gets its own recommendation — <b>${flat.length} bars, ${distinctColors} distinct colors</b> below. `+
+      `Same color family = same scale; darker/lighter shade = different root.`;
+  }else{
+    summaryEl.classList.remove('show');
+    summaryEl.innerHTML='';
+  }
+
+  s.sections.forEach((sec,secIdx)=>{
+    const secDiv=document.createElement('div');
+    secDiv.className='section';
+    secDiv.innerHTML=`
+      <div class="sectionHead">
+        <span class="sectionLabel">${sec.label}</span>
+        <span class="sectionActions">
+          <button class="small" onclick="moveSection(${secIdx},-1)">↑</button>
+          <button class="small" onclick="moveSection(${secIdx},1)">↓</button>
+          <button class="small" onclick="renameSection(${secIdx})">rename</button>
+          <button class="small" onclick="addBar(${secIdx})">+ bar</button>
+          <button class="small danger" onclick="deleteSection(${secIdx})">delete section</button>
+        </span>
+      </div>`;
+    const grid=document.createElement('div');
+    grid.className='barsGrid';
+    sec.bars.forEach((bar,barIdx)=>{
+      const barDiv=document.createElement('div');
+      barDiv.className='bar';
+      const editable=!nashvilleMode&&!guideMode;
+      const guideInfo=(guideMode&&guideMap)?guideMap[secIdx+'_'+barIdx]:null;
+      if(guideInfo){
+        barDiv.classList.add('guided');
+        barDiv.style.borderTopColor=guideInfo.color;
+        barDiv.style.background=`hsla(${guideInfo.hue},${guideInfo.sat??60}%,${guideInfo.light??50}%,.22)`;
+      }
+
+      const chordRow=document.createElement('div');
+      chordRow.className='chordRow';
+      bar.chords.forEach((chord,chIdx)=>{
+        const span=document.createElement('span');
+        span.className='chordSlot'+(nashvilleMode?' numeral':'');
+        span.contentEditable=editable;
+        span.textContent = nashvilleMode ? nashvilleNumeral(chord,rootIdx) : chord;
+        if(editable){
+          span.onfocus=()=>{activeSlot={secIdx,barIdx,chIdx};};
+          span.oninput=()=>{
+            sec.bars[barIdx].chords[chIdx]=span.textContent.trim();
+            persist();
+          };
+        }
+        chordRow.appendChild(span);
+        if(chIdx<bar.chords.length-1){
+          const sep=document.createElement('span');
+          sep.textContent=' ';
+          chordRow.appendChild(sep);
+        }
+      });
+      barDiv.appendChild(chordRow);
+
+      if(guideInfo){
+        const info=document.createElement('div');
+        info.className='guideInfo';
+        const pillText=(guideInfo.light??50)>50?'#0c0a08':'#fdf6ec';
+        info.innerHTML=`<span class="guidePill" style="background:${guideInfo.color};color:${pillText}">${guideInfo.label} · ${guideInfo.name}</span>
+          <span class="guideNotes">${guideInfo.notes}</span>`;
+        barDiv.appendChild(info);
+      }
+
+      if(!nashvilleMode&&!guideMode){
+        const tools=document.createElement('div');
+        tools.className='barTools';
+        tools.innerHTML=`
+          <button title="add chord to this bar" onclick="addChordToBar(${secIdx},${barIdx})">+ch</button>
+          <button title="remove bar" onclick="removeBar(${secIdx},${barIdx})">✕</button>`;
+        barDiv.appendChild(tools);
+      }
+      grid.appendChild(barDiv);
+    });
+    secDiv.appendChild(grid);
+    area.appendChild(secDiv);
+  });
+}
+
+function renderPalette(){
+  const p=document.getElementById('tensionPalette');
+  p.innerHTML=TENSIONS.map(t=>`<button onclick="insertTension('${t}')">${t}</button>`).join('');
+}
+
+function renderAll(){
+  renderSongList();
+  renderHeader();
+  renderChart();
+}
+
+/* ================= Actions ================= */
+function updateMeta(field,value){
+  const s=currentSong();
+  s[field]=field==='tempo'?parseInt(value)||0:value;
+  persist();
+  if(field==='title'||field==='style'||field==='key'||field==='tempo')renderSongList();
+}
+
+function addSection(){
+  const label=prompt('Section label (e.g. A, B, Bridge, Intro, Outro):','A');
+  if(!label)return;
+  currentSong().sections.push(makeSection(label,[makeBar('')]));
+  persist();renderChart();
+}
+function renameSection(i){
+  const s=currentSong();
+  const label=prompt('New section label:',s.sections[i].label);
+  if(!label)return;
+  s.sections[i].label=label;
+  persist();renderChart();
+}
+function deleteSection(i){
+  const s=currentSong();
+  if(!confirm('Delete this section?'))return;
+  s.sections.splice(i,1);
+  persist();renderChart();
+}
+function moveSection(i,dir){
+  const s=currentSong();
+  const j=i+dir;
+  if(j<0||j>=s.sections.length)return;
+  [s.sections[i],s.sections[j]]=[s.sections[j],s.sections[i]];
+  persist();renderChart();
+}
+function addBar(secIdx){
+  currentSong().sections[secIdx].bars.push(makeBar(''));
+  persist();renderChart();
+}
+function removeBar(secIdx,barIdx){
+  currentSong().sections[secIdx].bars.splice(barIdx,1);
+  persist();renderChart();
+}
+function addChordToBar(secIdx,barIdx){
+  currentSong().sections[secIdx].bars[barIdx].chords.push('');
+  persist();renderChart();
+}
+
+function insertTension(t){
+  if(!activeSlot){alert('Click a chord first, then pick a tension to append.');return;}
+  const s=currentSong();
+  const bar=s.sections[activeSlot.secIdx].bars[activeSlot.barIdx];
+  const cur=bar.chords[activeSlot.chIdx]||'';
+  const rootMatch=cur.match(/^([A-G])(#{1,2}|b{1,2})?/);
+  const root=rootMatch?rootMatch[0]:'C';
+  bar.chords[activeSlot.chIdx]=root+t;
+  persist();renderChart();
+}
+
+function togglePalette(){
+  document.getElementById('tensionPalette').classList.toggle('show');
+  renderPalette();
+}
+
+function toggleNashville(){
+  nashvilleMode=!nashvilleMode;
+  document.getElementById('nashvilleBtn').style.background=nashvilleMode?'var(--gold)':'';
+  document.getElementById('nashvilleBtn').style.color=nashvilleMode?'var(--black)':'';
+  if(nashvilleMode&&guideMode)toggleGuide();
+  renderChart();
+}
+
+function transposeSong(shift){
+  const s=currentSong();
+  const useFlats=FLAT_KEYS.has(s.key);
+  s.sections.forEach(sec=>sec.bars.forEach(bar=>{
+    bar.chords=bar.chords.map(c=>transposeChordString(c,shift,useFlats));
+  }));
+  const newIdx=(keyRootIndex(s.key)+shift+120)%12;
+  const isMinor=/m$/.test(s.key)&&!/^(maj|dim)/.test(s.key);
+  s.key=spellNote(newIdx,useFlats)+(isMinor?'m':'');
+  persist();renderHeader();renderChart();
+}
+
+function transposeToKey(targetKey){
+  if(!targetKey)return;
+  const s=currentSong();
+  const from=keyRootIndex(s.key);
+  const to=keyRootIndex(targetKey);
+  const shift=(to-from+12)%12;
+  const useFlats=FLAT_KEYS.has(targetKey);
+  s.sections.forEach(sec=>sec.bars.forEach(bar=>{
+    bar.chords=bar.chords.map(c=>transposeChordString(c,shift,useFlats));
+  }));
+  s.key=targetKey;
+  persist();renderHeader();renderChart();
+  document.getElementById('keyPicker').value='';
+}
+
+function newSong(){
+  const title=prompt('New song title:','Untitled');
+  if(!title)return;
+  const id='song-'+Date.now();
+  songs.push({id,title,style:'',key:'C',time:'4/4',tempo:100,
+    sections:[makeSection('A',[makeBar(''),makeBar(''),makeBar(''),makeBar('')])]});
+  currentId=id;persist();renderAll();
+}
+function duplicateSong(){
+  const s=currentSong();
+  const copy=JSON.parse(JSON.stringify(s));
+  copy.id='song-'+Date.now();
+  copy.title=s.title+' (copy)';
+  songs.push(copy);
+  currentId=copy.id;
+  persist();renderAll();
+}
+function deleteSong(){
+  if(songs.length<=1){alert('Keep at least one song.');return;}
+  if(!confirm('Delete "'+currentSong().title+'"?'))return;
+  songs=songs.filter(s=>s.id!==currentId);
+  currentId=songs[0].id;
+  persist();renderAll();
+}
+
+function exportSong(){
+  const s=currentSong();
+  const blob=new Blob([JSON.stringify(s,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=s.title.replace(/[^a-z0-9]+/gi,'_')+'.json';
+  a.click();
+}
+function importSong(evt){
+  const file=evt.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const obj=JSON.parse(e.target.result);
+      obj.id='song-'+Date.now();
+      songs.push(obj);
+      currentId=obj.id;
+      persist();renderAll();
+    }catch(err){alert('Invalid JSON file.');}
+  };
+  reader.readAsText(file);
+  evt.target.value='';
+}
+
+function setZoom(px){
+  document.documentElement.style.setProperty('--chart-font-size',px+'px');
+}
+
+function toggleAutoscroll(){
+  scrolling=!scrolling;
+  const btn=document.getElementById('scrollBtn');
+  btn.textContent=scrolling?'⏸ Stop':'▶ Auto-Scroll';
+  const container=document.getElementById('chartScroll');
+  if(scrolling){
+    scrollTimer=setInterval(()=>{
+      const speed=parseInt(document.getElementById('scrollSpeed').value);
+      container.scrollTop+=speed*0.4;
+      if(container.scrollTop+container.clientHeight>=container.scrollHeight){
+        toggleAutoscroll();
+      }
+    },50);
+  }else{
+    clearInterval(scrollTimer);
+  }
+}
+
+/* ================= Init ================= */
+loadSongs();
+renderAll();
+</script>
+</body>
+</html>
